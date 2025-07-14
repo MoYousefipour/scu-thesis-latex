@@ -222,7 +222,7 @@
 % Math packages
 \RequirePackage{amsthm}
 \RequirePackage{amssymb}
-\RequirePackage{amsmath}
+\RequirePackage[fleqn]{amsmath}
 \RequirePackage{amsfonts}
 
 % Table of Content package
@@ -355,7 +355,8 @@
 \linespread {1.7}
 
 % Set paragraph indentation
-\setlength{\parindent}{1cm}
+\setlength{\parindent}{1cm} 
+\setlength{\mathindent}{0pt}
 
 % Use dash instead of dot, to separate numbers of sections, figures and tables
 \SepMark{-}
@@ -388,8 +389,9 @@
     {0.5cm}
     {#1}
 
+
 % Change references section title
-\renewcommand\bibname {فهرست مراجع}
+\renewcommand{\tocbibname}{فهرست منابع}
 
 % Put reference numbers in parentheses for {figure, equation, table}
 % \makeatletter
@@ -480,6 +482,7 @@
   {}
   {\hspace{5pt}\titlerule*[8pt]{.}\sffamily\bfseries\contentspage}
 
+
 %______________________________________________________________________
 %%%%%% Chapters' first page %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -503,14 +506,11 @@
 %%%%%% Headers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 % Normal pages header
-\pagestyle {fancy}
-
-% Page number at the left side of header
-\lhead {\thepage}
-
-% Chapter title at the right side of header
-\rhead {\leftmark}
-
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[R]{\ifthenelse{\isodd{\value{page}}}{\leftmark}{\thepage}}
+\fancyhead[L]{\ifthenelse{\isodd{\value{page}}}{\thepage}{\printReportTitle}}
+\fancyfoot{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Helper Functions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -649,17 +649,22 @@
         \bigGap
         
         % Advisor(s)
+        \ifdefempty{\printAdvisor}{
+
+        }{
         \ifdefempty{\printAdvisorSecond}{
             \normalsize \textbf {استاد مشاور}
             \smallGap
             \large \printAdvisor
+            \bigGap
         }{
             \normalsize \textbf {استادان مشاور}
             \smallGap
             \large \printAdvisor \\
             \large \printAdvisorSecond
-        }
-        \bigGap
+            \bigGap
+        }}
+        
         
         % Author
         \normalsize \textbf {نگارنده}
@@ -692,7 +697,7 @@
     \noindent \textbf{عنوان \printReportType: \printReportTitle} \vspace{0.1cm}
 
 
-    اینجانب \printAuthor \ دانشجوی دوره \printDegreeType \ گروه \printDepartement \ دانشکده \printFaculty \ \printUniversityTitle \ به شماره دانشجویی \printStudentID \ نویسندهٔ پایان‌نامه تحت راهنمایی \printSupervisor \ \ifdefempty{\printSupervisorSecond}{}{و \printSupervisorSecond \ }و مشاوره \printAdvisor \ \ifdefempty{\printAdvisorSecond}{}{و \printAdvisorSecond \ }متعهد می‌شوم:
+    اینجانب \printAuthor \ دانشجوی دوره \printDegreeType \ گروه \printDepartement \ دانشکده \printFaculty \ \printUniversityTitle \ به شماره دانشجویی \printStudentID \ نویسندهٔ پایان‌نامه تحت راهنمایی \printSupervisor \ \ifdefempty{\printSupervisorSecond}{}{و \printSupervisorSecond}\ifdefempty{\printAdvisor}{}{مشاوره و \ \printAdvisor \ \ifdefempty{\printAdvisorSecond}{}{و \printAdvisorSecond \ }} متعهد می‌شوم:
     \begin{enumerate}
         \itemsep-2.6mm
         \item
@@ -775,10 +780,12 @@
     \ifdefempty{\printSupervisorSecond}{}{
         & \textbf{استاد راهنما:} \printSupervisorSecond & \printSupervisorSecondGrade &  \\
     }
+    \ifdefempty{\printAdvisor}{}{
     & \textbf{استاد مشاور:} \printAdvisor & \printAdvisorGrade &  \\
     % Second Advisor
     \ifdefempty{\printAdvisorSecond}{}{
         & \textbf{استاد مشاور:} \printAdvisorSecond & \printAdvisorSecondGrade &  \\
+    }
     }
     & \textbf{استاد داور:} \printExaminerFirst & \printExaminerFirstGrade &  \\
     & \textbf{استاد داور:} \printExaminerSecond & \printExaminerSecondGrade &  \\
@@ -833,17 +840,17 @@
             استادان راهنما: \printSupervisor \ و \printSupervisorSecond
         }
     } \\ \hline
-
-    \rowfont{\footnotesize\bfseries}
-    \multicolumn{3}{|p{\dimexpr 3\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|}
-    {% Advisor(s)
-        \ifdefempty{\printAdvisorSecond}{
-            استاد مشاور: \printAdvisor
-        }{
-            استادان مشاور: \printAdvisor \ و \printAdvisorSecond
-        }
-    } \\ \hline
-
+    \ifdefempty{\printAdvisor}{}{
+    \ifdefempty{\printAdvisorSecond}{
+        
+        \multicolumn{3}{|p{\dimexpr 3\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|} 
+        {استاد مشاور: \printAdvisor}
+    }{
+        \rowfont{\footnotesize\bfseries}
+        \multicolumn{3}{|p{\dimexpr 3\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|} 
+        {استادان مشاور: \printAdvisor \ و \printAdvisorSecond}
+    }
+    \\ \hline }
     \rowfont{\footnotesize\bfseries}
     درجه تحصیلی: \printDegreeType &
     رشته: \printMajor &
@@ -857,8 +864,8 @@
     \rowfont{\footnotesize\bfseries}
     \multicolumn{2}{|p{\dimexpr 2\tabucolX+2\tabcolsep+\arrayrulewidth\relax} }
     {تاریخ فارغ‌التحصیلی: \printGraduationDate} &
-    % تعداد صفحه: \pageref{LastPage} \\ \hline
-    تعداد صفحه: \pgfmathparse{\getpagerefnumber{LastPage} - 1}\pgfmathprintnumber{\pgfmathresult} \\ \hline
+     تعداد صفحه: \pageref{LastPage} \\ \hline
+    %تعداد صفحه: \pgfmathparse{\getpagerefnumber{LastPage} - 1}\pgfmathprintnumber{\pgfmathresult} \\ \hline
 
     \rowfont{\footnotesize\bfseries}
     \multicolumn{3}{|p{\dimexpr 3\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|}
@@ -867,7 +874,7 @@
     \rowfont{\small\mdseries}
     \multicolumn{3}{|r|}{
         \makecell[{{p{\dimexpr 3\tabucolX+4\tabcolsep+\arrayrulewidth\relax}}}]{
-            \printAbstractPersian\\[1mm]
+            \printAbstractPersian
         }
     } \\ \hline
     \end{tabu}
@@ -911,16 +918,20 @@
         }{
             \textbf{Supervisors}: \titlecap{\printSupervisorEnglish} and \titlecap{\printSupervisorSecondEnglish}
         }
-    } \\ \hline
+    } \\ \hline 
+    
+    % Advisor(s)
+    \ifdefempty{\printAdvisorEnglish}{
 
-    \multicolumn{2}{|p{\dimexpr 2\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|}
-    {% Advisor(s)
-        \ifdefempty{\printAdvisorSecondEnglish}{
-            \textbf{Advisor}: \titlecap{\printAdvisorEnglish}
+    }{
+        
+    \ifdefempty{\printAdvisorSecondEnglish}{
+        \multicolumn{2}{|p{\dimexpr 2\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|}
+            {\textbf{Advisor}: \titlecap{\printAdvisorEnglish}}
         }{
-            \textbf{Advisors}: \titlecap{\printAdvisorEnglish} and \titlecap{\printAdvisorSecondEnglish}
-        }
-    } \\ \hline
+            \multicolumn{2}{|p{\dimexpr 2\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|}
+            {\textbf{Advisors}: \titlecap{\printAdvisorEnglish} and \titlecap{\printAdvisorSecondEnglish}}
+        }\\ \hline}
 
     \multicolumn{2}{|p{\dimexpr 2\tabucolX+4\tabcolsep+\arrayrulewidth\relax}|}
     {\textbf{Degree}: \printDegreeTypeEnglish} \\ \hline
@@ -990,6 +1001,8 @@
         }
 
         % Advisor(s)
+        \ifdefempty{\printAdvisorEnglish}{}
+        {
         \ifdefempty{\printAdvisorSecondEnglish}{
             \large Advised By \\
             \Large \titlecap{\printAdvisorEnglish} \\[20mm]
@@ -997,7 +1010,7 @@
             \large Advised By \\[-2mm]
             \Large \titlecap{\printAdvisorEnglish} \\[-4mm]
             \Large \titlecap{\printAdvisorSecondEnglish} \\[10mm]
-        }
+        }}
 
         % Date
         \normalsize \titlecap{\printReportDateEnglish}
@@ -1005,8 +1018,34 @@
     \end{center}
 }
 
+%=============Algorithm===============
+\newenvironment{الگوریتم}[1]
+{\bigskip\bigskip\begin{algorithm}\caption{#1} \label{الگوریتم: #1}\vspace{0.5em}\begin{algorithmic}[1]}
+		{\end{algorithmic}\vspace{0.5em}\end{algorithm}\bigskip}
 
 
+\renewcommand{\algorithmicfor}{{به ازای}}
+\renewcommand{\algorithmicwhile}{{تا وقتی}}
+\renewcommand{\algorithmicdo}{\hspace{-.2em}:}
+\renewcommand{\algorithmicif}{{اگر}}
+\renewcommand{\algorithmicthen}{\hspace{-.2em}:}
+\renewcommand{\algorithmicelse}{{در غیر این صورت:}}
+%\renewcommand{\algorithmicelsif}{{در غیر این صورت اگر: }}
+\renewcommand{\algorithmicreturn}{{برگردان}}
+\renewcommand{\algorithmiccomment}[1]{$\triangleleft$ \emph{#1}}
+\renewcommand{\algorithmicrequire}{\textbf{ورودی:}}
+\renewcommand{\algorithmicensure}{\textbf{خروجی:}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand\appendixtocname{پیوست‌ها}
+\newcommand{\nocontentsline}[3]{}
+\newcommand{\tocless}[2]{\bgroup\let\addcontentsline=\nocontentsline#1{#2}\egroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Glossaries Settings %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1022,49 +1061,33 @@
 %%% اشکال . Failure
 %%% ش
 %%% شبکه .. Network
+%% تعریف استایل برای واژه نامه فارسی به انگلیسی،
 \newglossarystyle{myFaToEn}{%
-	\renewenvironment{theglossary}{}{}
-	\renewcommand*{\glsgroupskip}{\vskip 10mm}
-	\renewcommand*{\glsgroupheading}[1]{\subsection*{\glsgetgrouptitle{##1}}}
-	\renewcommand*{\glossentry}[2]{\noindent\glsentryname{##1}\dotfill\space \glsentrytext{##1}
-		
-	}
+    \renewenvironment{theglossary}{}{}
+    \renewcommand*{\glsgroupskip}{\vskip 10mm}
+    \renewcommand*{\glsgroupheading}[1]{\subsection*{\centering \glsgetgrouptitle{##1}}}
+    \renewcommand*{\glossentry}[2]{\noindent\glsentryname{##1}\dotfill\space \glsentrytext{##1}
+  
+    }
 }
-
-%% % تعریف استایل برای واژه نامه انگلیسی به فارسی، در این استایل واژه‌های فارسی در سمت راست و واژه‌های انگلیسی در سمت چپ خواهند آمد. از حالت گروه ‌بندی استفاده می‌کنیم، 
-%% % یعنی واژه‌ها در گروه‌هایی به ترتیب حروف الفبا مرتب می‌شوند، مثلا:
-%% % E
-%%% Economy . اقتصاد
-%% % F
-%% % Failure.. اشکال
-%% %N
-%% % Network  شبکه
-
+  
+%% تعریف استایل برای واژه نامه انگلیسی به فارسی،
 \newglossarystyle{myEntoFa}{%
-	%%% این دستور در حقیقت عملیات گروه‌بندی را انجام می‌دهد. بدین صورت که واژه‌ها در بخش‌های جداگانه گروه‌بندی می‌شوند، 
-	%%% عنوان بخش همان نام حرفی است که هر واژه در آن گروه با آن شروع شده است. 
-	\renewenvironment{theglossary}{}{}
-	\renewcommand*{\glsgroupskip}{\vskip 10mm}
-	\renewcommand*{\glsgroupheading}[1]{\begin{LTR} \subsection*{\glsgetgrouptitle{##1}} \end{LTR}}
-	%%% در این دستور نحوه نمایش واژه‌ها می‌آید. در این جا واژه فارسی در سمت راست و واژه انگلیسی در سمت چپ قرار داده شده است، و بین آن با نقطه پر می‌شود. 
-	\renewcommand*{\glossentry}[2]{\noindent\glsentrytext{##1}\dotfill\space \glsentryname{##1}
-		
-	}
-}
+    \renewenvironment{theglossary}{}{}
+    \renewcommand*{\glsgroupskip}{\vskip 10mm}
+    \renewcommand*{\glsgroupheading}[1]{\begin{LTR} \subsection*{ \centering \glsgetgrouptitle{##1}} \end{LTR}}
+    \renewcommand*{\glossentry}[2]{\noindent\glsentrytext{##1}\dotfill\space \glsentryname{##1}
 
+    }
+}
+  
 %%% تعیین استایل برای فهرست اختصارات
 \newglossarystyle{myAbbrlist}{%
-	%%% این دستور در حقیقت عملیات گروه‌بندی را انجام می‌دهد. بدین صورت که اختصارات‌ در بخش‌های جداگانه گروه‌بندی می‌شوند، 
-	%%% عنوان بخش همان نام حرفی است که هر اختصار در آن گروه با آن شروع شده است. 
-	\renewenvironment{theglossary}{}{}
-	\renewcommand*{\glsgroupskip}{\vskip 10mm}
-	\renewcommand*{\glsgroupheading}[1]{\begin{LTR} \subsection*{\glsgetgrouptitle{##1}} \end{LTR}}
-	%%% در این دستور نحوه نمایش اختصارات می‌آید. در این جا حالت کوچک اختصار در سمت چپ و حالت بزرگ در سمت راست قرار داده شده است، و بین آن با نقطه پر می‌شود. 
-	\renewcommand*{\glossentry}[2]{\noindent\glsentrytext{##1}\dotfill\space \Glsentrylong{##1}
-		
-	}
-	%%% تغییر نام محیط abbreviation به فهرست اختصارات
-	\renewcommand*{\acronymname}{\rl{فهرست اختصارات}}
+    \renewenvironment{theglossary}{}{}
+    \renewcommand*{\glsgroupskip}{\vskip 10mm}
+    \renewcommand*{\glsgroupheading}[1]{\begin{LTR} \subsection*{\glsgetgrouptitle{##1}} \end{LTR}}
+    \renewcommand*{\glossentry}[2]{\noindent\glsentrytext{##1}\dotfill\space \Glsentrylong{##1}}
+    \renewcommand*{\acronymname}{\rl{فهرست اختصارات}}
 }
 
 %%% برای اجرا xindy بر روی فایل .tex و تولید واژه‌نامه‌ها و فهرست اختصارات و فهرست نمادها یکسری  فایل تعریف شده است.‌ Latex داده های مربوط به واژه نامه و .. را در این 
@@ -1105,11 +1128,11 @@
 
 %%%%%% =============================================== دستور برای قرار دادن فهرست اختصارات 
 \newcommand{\printabbreviation}{
-	\cleardoublepage
+	\clearpage
 	\phantomsection
 	\baselineskip=.75cm
 	%% با این دستور عنوان فهرست اختصارات به فهرست مطالب اضافه می‌شود. 
-	\addcontentsline{toc}{chapter}{فهرست اختصارات}
+	% \addcontentsline{toc}{chapter}{فهرست اختصارات}
 	\setglossarystyle{myAbbrlist}
 	\begin{LTR}
 		\Oldprintglossary[type=acronym]	
@@ -1128,15 +1151,17 @@
 	%% این دستور موجب این می‌شود که واژه‌نامه‌ها در  حالت دو ستونی نوشته شود. 
 	\twocolumn{}
 	%% با این دستور عنوان واژه‌نامه به فهرست مطالب اضافه می‌شود. 
-	\addcontentsline{toc}{chapter}{واژه نامه انگلیسی به فارسی}
-	\setglossarystyle{myEntoFa}
-	\Oldprintglossary[type=english]
+	%\addcontentsline{toc}{chapter}{واژه نامه انگلیسی به فارسی}
+	% \setglossarystyle{myEntoFa}
 	
-	\clearpage
+	% \Oldprintglossary[type=english]
+	% \clearpage
 	\phantomsection
 	%% با این دستور عنوان واژه‌نامه به فهرست مطالب اضافه می‌شود. 
-	\addcontentsline{toc}{chapter}{واژه نامه فارسی به انگلیسی}
+	%\addcontentsline{toc}{chapter}{واژه نامه فارسی به انگلیسی}
 	\setglossarystyle{myFaToEn}
 	\Oldprintglossary[type=persian]
 	\onecolumn{}
 }
+
+
